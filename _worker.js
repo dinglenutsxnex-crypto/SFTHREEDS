@@ -122,7 +122,7 @@ export default {
           cur: '0.1.3.0.835-prod',
           url: `${url.origin}/cdn/config.zip`,
         },
-        load: { '127.0.0.1:9933': 0 },
+        load: { 'sfthreeds.adiforgottenme.workers.dev:80': 0 },
       }, { headers: cors() });
     }
 
