@@ -125,6 +125,67 @@ const STARTER_GEAR=(()=> {
   return concat(...items.map(m=>mf(1,m)));
 })();
 
+// ---- battle content ----------------------------------------------------------
+// Enemy + fight catalog. Warriors mirror gamedata/User/battles.txt gear;
+// custom 900x battles match local battles.js lab_* entries (Bamboo/Gorge/Temple).
+function wItem(id) { return mf(1, vf(1, id)); }                    // WarriorItemId
+function warrior(alias, gender, ai, power, gear) {
+  return concat(sf(1, alias), vf(2, gender), vf(3, 0), vf(4, ai), dff(5, power),
+    ...gear.map(g => mf(6, wItem(g))));
+}
+function genRound(w) { return mf(2, w); }                          // GeneratedRound{warrior}
+function loot(exp, coins) {
+  return mf(2, concat(
+    mf(1, concat(vf(1, 1), vf(2, coins))),                         // Currency{COIN, value}
+    vf(2, exp)));                                                  // Experience
+}
+function genFight(rounds, rewards) {
+  return concat(...rounds.map(r => mf(1, r)), ...rewards.map(l => mf(2, l)));
+}
+function genBattle(modelId, fights) {
+  return concat(vf(1, modelId), ...fights.map(f => mf(2, f)));
+}
+function battleWrap(g, counter) {
+  const now = tsProto(Date.now());
+  return concat(mf(1, g), vf(2, counter), vf(3, 0), mf(4, now), mf(5, now));
+}
+const HAMMERHEAD = () => warrior('CHAR_HAMMERHEAD', 1, 1, 20, [412, 214, 22]);
+const OUTCAST = () => warrior('CHAR_OUTCAST', 1, 1, 20, [417, 217, 1000000]);
+const SPADE = () => warrior('CHAR_SPADE', 2, 1, 20, [401, 203, 47]);
+const MAUL = () => warrior('CHAR_MAUL', 1, 1, 20, [416, 216, 52]);
+const AVALANCHE = () => warrior('CHAR_AVALANCHE', 2, 1, 20, [406, 202, 55]);
+const RASCAL = () => warrior('CHAR_RASCAL', 1, 1, 20, [411, 201, 44]);
+const BOULDER = () => warrior('CHAR_BOULDER', 1, 1, 20, [408, 218, 29]);
+const GRETA = () => warrior('CHAR_GRETA', 2, 1, 20, [407, 200, 6]);
+const GIZMO = () => warrior('CHAR_GIZMO', 1, 2, 17.5, [409, 200, 4]);
+const JUNE = () => warrior('CHAR_JUNE', 2, 2, 17.5, [4013, 215, 35]);
+function story40() {
+  const F = (w, n = 1, exp = 15, coins = 80) => {
+    const rounds = []; for (let i = 0; i < n; i++) rounds.push(genRound(w()));
+    return genFight(rounds, [loot(exp, coins)]);
+  };
+  return genBattle(40, [F(HAMMERHEAD, 2), F(OUTCAST), F(SPADE), F(MAUL),
+    F(AVALANCHE), F(BOULDER), F(RASCAL), F(GRETA)]);
+}
+function story1() {
+  return genBattle(1, [
+    genFight([genRound(GIZMO())], [loot(10, 75)]),
+    genFight([genRound(JUNE())], [loot(10, 75)]),
+  ]);
+}
+function custom900x() {
+  const mk = (id, w) => genBattle(id, [genFight([genRound(w())], [loot(10, 50)])]);
+  return [mk(9001, HAMMERHEAD), mk(9002, OUTCAST), mk(9003, JUNE)];
+}
+function battleData() {
+  const all = [story40(), story1(), ...custom900x()];
+  return concat(...all.map(g => mf(1, battleWrap(g, 1))));
+}
+function playerCurrencies() {
+  const c = (t, v) => mf(4, concat(vf(1, t), vf(2, v)));
+  return concat(c(1, 5000), c(2, 200), c(3, 50));
+}
+
 // ---- session -----------------------------------------------------------------
 export function createSession(){
   return { sid:1000000, outbox:[] };
@@ -179,14 +240,15 @@ export function handleSfs(st, payload){
     if(cmd==='get_player'){
       const sid=trackIds(st,b);
       const shortp=concat(vf(1,7),sf(2,'LocalHero'),sf(3,'LocalHero'),vf(4,1));
-      const player=concat(mf(1,mf(1,shortp)),mf(5,new Uint8Array(0)),
+      const player=concat(mf(1,mf(1,shortp)),vf(3,50),playerCurrencies(),
+        mf(5,new Uint8Array(0)),
         mf(6,mf(2,tsProto(Date.now()))),mf(7,STARTER_GEAR),mf(8,new Uint8Array(0)),
         vf(9,100),vf(10,sid),mf(12,vf(2,424242)));
       send(extResponse('get_player',0,'',mf(1,player),reqId));
     } else if(cmd==='ping'){
       send(extResponse('ping',0,'',concat(mf(1,b),mf(2,tsProto(Date.now()))),reqId));
     } else if(cmd==='refresh_battles'){
-      send(extResponse('refresh_battles',0,'',concat(vf(1,st.sid),sf(2,new Uint8Array(0))),reqId));
+      send(extResponse('refresh_battles',0,'',concat(vf(1,st.sid),sf(2,battleData())),reqId));
     } else if(cmd==='log'){
       send(extResponse('log',0,'',new Uint8Array(0),reqId));
     } else if(cmd==='process_offline_batch'){
