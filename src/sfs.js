@@ -129,8 +129,8 @@ const STARTER_GEAR=(()=> {
 // Enemy + fight catalog. Warriors mirror gamedata/User/battles.txt gear;
 // custom 900x battles match local battles.js lab_* entries (Bamboo/Gorge/Temple).
 function wItem(id) { return mf(1, vf(1, id)); }                    // WarriorItemId
-function warrior(alias, gender, ai, power, gear) {
-  return concat(sf(1, alias), vf(2, gender), vf(3, 0), vf(4, ai), dff(5, power),
+function warrior(alias, gender, appearance, ai, power, gear) {
+  return concat(sf(1, alias), vf(2, gender), vf(3, appearance), vf(4, ai), dff(5, power),
     ...gear.map(g => mf(6, wItem(g))));
 }
 function genRound(w) { return mf(2, w); }                          // GeneratedRound{warrior}
@@ -149,16 +149,16 @@ function battleWrap(g, counter) {
   const now = tsProto(Date.now());
   return concat(mf(1, g), vf(2, counter), vf(3, 0), mf(4, now), mf(5, now));
 }
-const HAMMERHEAD = () => warrior('CHAR_HAMMERHEAD', 1, 1, 20, [412, 214, 22]);
-const OUTCAST = () => warrior('CHAR_OUTCAST', 1, 1, 20, [417, 217, 1000000]);
-const SPADE = () => warrior('CHAR_SPADE', 2, 1, 20, [401, 203, 47]);
-const MAUL = () => warrior('CHAR_MAUL', 1, 1, 20, [416, 216, 52]);
-const AVALANCHE = () => warrior('CHAR_AVALANCHE', 2, 1, 20, [406, 202, 55]);
-const RASCAL = () => warrior('CHAR_RASCAL', 1, 1, 20, [411, 201, 44]);
-const BOULDER = () => warrior('CHAR_BOULDER', 1, 1, 20, [408, 218, 29]);
-const GRETA = () => warrior('CHAR_GRETA', 2, 1, 20, [407, 200, 6]);
-const GIZMO = () => warrior('CHAR_GIZMO', 1, 2, 17.5, [409, 200, 4]);
-const JUNE = () => warrior('CHAR_JUNE', 2, 2, 17.5, [4013, 215, 35]);
+const HAMMERHEAD = () => warrior('CHAR_HAMMERHEAD', 1, 13, 1, 20, [412, 214, 22]);
+const OUTCAST = () => warrior('CHAR_OUTCAST', 1, 14, 1, 20, [417, 217, 1000000]);
+const SPADE = () => warrior('CHAR_SPADE', 2, 1, 1, 20, [401, 203, 47]);
+const MAUL = () => warrior('CHAR_MAUL', 1, 14, 1, 20, [416, 216, 52]);
+const AVALANCHE = () => warrior('CHAR_AVALANCHE', 2, 3, 1, 20, [406, 202, 55]);
+const RASCAL = () => warrior('CHAR_RASCAL', 1, 15, 1, 20, [411, 201, 44]);
+const BOULDER = () => warrior('CHAR_BOULDER', 1, 14, 1, 20, [408, 218, 29]);
+const GRETA = () => warrior('CHAR_GRETA', 2, 1, 1, 20, [407, 200, 6]);
+const GIZMO = () => warrior('CHAR_GIZMO', 1, 7, 2, 17.5, [409, 200, 4]);
+const JUNE = () => warrior('CHAR_JUNE', 2, 10, 2, 17.5, [4013, 215, 35]);
 function story40() {
   const F = (w, n = 1, exp = 15, coins = 80) => {
     const rounds = []; for (let i = 0; i < n; i++) rounds.push(genRound(w()));
