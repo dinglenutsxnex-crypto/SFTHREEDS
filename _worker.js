@@ -1,5 +1,8 @@
 import { createSession, handleSfs } from './src/sfs.js';
 
+// Bump on every deploy so we can tell exactly which build is live.
+const BUILD = 'bb3';
+
 // One Durable Object instance per BlueBox session id => sticky game state.
 export class SfsSession {
   constructor(state, env) {
@@ -118,6 +121,7 @@ export default {
     // Balancer — exact shape NetworkBalancerManager + BalancerSettings expects.
     if (url.pathname === '/balance') {
       return Response.json({
+        build: BUILD,
         version: {
           cur: '0.1.3.0.835-prod',
           url: `${url.origin}/cdn/config.zip`,
@@ -134,7 +138,7 @@ export default {
     }
 
     if (url.pathname === '/debug') {
-      return Response.json({ ok: true, now: new Date().toISOString() }, { headers: cors() });
+      return Response.json({ ok: true, build: BUILD, now: new Date().toISOString() }, { headers: cors() });
     }
 
     if (url.pathname === '/') {
