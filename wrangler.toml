@@ -1,3 +1,11 @@
 name = "sfthreeds"
 main = "_worker.js"
 compatibility_date = "2024-01-01"
+
+[[durable_objects.bindings]]
+name = "SFS"
+class_name = "SfsSession"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["SfsSession"]
