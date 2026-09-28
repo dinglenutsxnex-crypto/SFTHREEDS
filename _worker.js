@@ -9,6 +9,18 @@ export class SfsSession {
     this.sessions = new Map(); // sessId -> { st, createdAt }
   }
 
+  // NOTE: entrypoint routes by idFromName(sessId), so a session must ONLY
+  // ever live in the DO of its own id. connect_contact returns an id without
+  // storing; the target DO lazily creates state on first data/poll.
+  getOrCreate(sess) {
+    let e = this.sessions.get(sess);
+    if (!e) {
+      e = { st: createSession(), createdAt: Date.now() };
+      this.sessions.set(sess, e);
+    }
+    return e;
+  }
+
   async fetch(request) {
     const url = new URL(request.url);
     if (url.pathname !== '/BlueBox/BlueBox.do' || request.method !== 'POST') {
@@ -27,12 +39,10 @@ export class SfsSession {
 
     if (cmd === 'connect') {
       const id = crypto.randomUUID().replace(/-/g, '');
-      this.sessions.set(id, { st: createSession(), createdAt: Date.now() });
       return new Response(`connect|${id}`, { headers: cors() });
     }
 
-    const entry = this.sessions.get(sess);
-    if (!entry) return new Response('err01|invalid-session', { status: 200, headers: cors() });
+    const entry = this.getOrCreate(sess);
     const st = entry.st;
 
     if (cmd === 'data') {
