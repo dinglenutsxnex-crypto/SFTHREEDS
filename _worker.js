@@ -1,7 +1,7 @@
-import { createSession, handleSfs } from './src/sfs.js';
+import { createSession, handleSfs, decodeObj } from './src/sfs.js';
 
 // Bump on every deploy so we can tell exactly which build is live.
-const BUILD = 'bb4';
+const BUILD = 'bb5';
 
 // One Durable Object instance per BlueBox session id => sticky game state.
 export class SfsSession {
@@ -149,6 +149,34 @@ export default {
 
     if (url.pathname === '/debug') {
       return Response.json({ ok: true, build: BUILD, now: new Date().toISOString() }, { headers: cors() });
+    }
+
+    // Diagnostic: run posted base64 SFS frames through a fresh session, return queued replies.
+    if (url.pathname === '/diag/sfs' && request.method === 'POST') {
+      try {
+        const body = new Uint8Array(await request.arrayBuffer());
+        const st = createSession();
+        let off = 0;
+        const seen = [];
+        while (off + 3 <= body.length) {
+          if (!(body[off] & 0x80)) break;
+          const big = body[off] & 0x08;
+          const hlen = big ? 5 : 3;
+          if (off + hlen > body.length) break;
+          const dv = new DataView(body.buffer, body.byteOffset + off + 1, big ? 4 : 2);
+          const ln = big ? dv.getUint32(0) : dv.getUint16(0);
+          if (off + hlen + ln > body.length) break;
+          let payload = body.slice(off + hlen, off + hlen + ln);
+          off += hlen + ln;
+          try {
+            const r = handleSfs(st, payload);
+            seen.push({ c: r.c, a: r.a });
+          } catch (e) { seen.push({ error: String(e && e.message || e) }); }
+        }
+        return Response.json({ build: BUILD, seen, replies: st.outbox.length }, { headers: cors() });
+      } catch (e) {
+        return Response.json({ build: BUILD, error: String(e && e.message || e) }, { status: 200, headers: cors() });
+      }
     }
 
     if (url.pathname === '/') {
