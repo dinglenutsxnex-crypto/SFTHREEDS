@@ -1,7 +1,7 @@
 import { createSession, handleSfs, decodeObj } from './src/sfs.js';
 
 // Bump on every deploy so we can tell exactly which build is live.
-const BUILD = 'bb5';
+const BUILD = 'bb6';
 
 // One Durable Object instance per BlueBox session id => sticky game state.
 export class SfsSession {
@@ -154,7 +154,10 @@ export default {
     // Diagnostic: run posted base64 SFS frames through a fresh session, return queued replies.
     if (url.pathname === '/diag/sfs' && request.method === 'POST') {
       try {
-        const body = new Uint8Array(await request.arrayBuffer());
+        const ab = await request.arrayBuffer();
+        const body = new Uint8Array(ab);
+        const head = Array.from(body.slice(0, 8)).map(x => x.toString(16).padStart(2, '0')).join('');
+        const diagInfo = { len: body.length, byteOffset: body.byteOffset, bufLen: ab.byteLength, head };
         const st = createSession();
         let off = 0;
         const seen = [];
@@ -173,9 +176,9 @@ export default {
             seen.push({ c: r.c, a: r.a });
           } catch (e) { seen.push({ error: String(e && e.message || e) }); }
         }
-        return Response.json({ build: BUILD, seen, replies: st.outbox.length }, { headers: cors() });
+        return Response.json({ build: BUILD, seen, replies: st.outbox.length, body: diagInfo }, { headers: cors() });
       } catch (e) {
-        return Response.json({ build: BUILD, error: String(e && e.message || e) }, { status: 200, headers: cors() });
+        return Response.json({ build: BUILD, error: String(e && e.message || e) + ' | ' + (e && e.stack || ''), body: (typeof diagInfo !== 'undefined' ? diagInfo : null) }, { status: 200, headers: cors() });
       }
     }
 
