@@ -8,4 +8,4 @@ class_name = "SfsSession"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["SfsSession"]
+new_sqlite_classes = ["SfsSession"]
