@@ -186,7 +186,10 @@ function playerCurrencies() {
 
 // ---- session -----------------------------------------------------------------
 export function createSession(){
-  return { sid:1000000, outbox:[] };
+  // NOTE: floor must exceed ANY id the client may have banked (its counter
+  // persists across sessions; an empty batch carries no ids to learn from).
+  // A small floor desyncs -> client wipes its own data. 1e12 is headroom.
+  return { sid:1000000000000, outbox:[] };
 }
 function trackIds(st, batchBytes){
   try{
