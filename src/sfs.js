@@ -129,9 +129,11 @@ const STARTER_GEAR=(()=> {
 // Enemy + fight catalog. Warriors mirror gamedata/User/battles.txt gear;
 // custom 900x battles match local battles.js lab_* entries (Bamboo/Gorge/Temple).
 function wItem(id) { return mf(1, vf(1, id)); }                    // WarriorItemId
-function warrior(alias, gender, appearance, ai, power, gear) {
-  return concat(sf(1, alias), vf(2, gender), vf(3, appearance), vf(4, ai), dff(5, power),
-    ...gear.map(g => mf(6, wItem(g))));
+function warrior(alias, gender, appearance, ai, power) {
+  // NOTE: no equipment list on purpose. The client's proto->ModelInfo merge
+  // NREs on server-supplied gear, while the fight itself only needs rounds to
+  // exist — enemies fall back to default gear. Static gear lives in battles.js.
+  return concat(sf(1, alias), vf(2, gender), vf(3, appearance), vf(4, ai), dff(5, power));
 }
 function genRound(w) { return mf(2, w); }                          // GeneratedRound{warrior}
 function loot(exp, coins) {
@@ -149,24 +151,30 @@ function battleWrap(g, counter) {
   const now = tsProto(Date.now());
   return concat(mf(1, g), vf(2, counter), vf(3, 0), mf(4, now), mf(5, now));
 }
-const HAMMERHEAD = () => warrior('CHAR_HAMMERHEAD', 1, 13, 1, 20, [412, 214, 22]);
-const OUTCAST = () => warrior('CHAR_OUTCAST', 1, 14, 1, 20, [417, 217, 1000000]);
-const SPADE = () => warrior('CHAR_SPADE', 2, 1, 1, 20, [401, 203, 47]);
-const MAUL = () => warrior('CHAR_MAUL', 1, 14, 1, 20, [416, 216, 52]);
-const AVALANCHE = () => warrior('CHAR_AVALANCHE', 2, 3, 1, 20, [406, 202, 55]);
-const RASCAL = () => warrior('CHAR_RASCAL', 1, 15, 1, 20, [411, 201, 44]);
-const BOULDER = () => warrior('CHAR_BOULDER', 1, 14, 1, 20, [408, 218, 29]);
-const GRETA = () => warrior('CHAR_GRETA', 2, 1, 1, 20, [407, 200, 6]);
-const GIZMO = () => warrior('CHAR_GIZMO', 1, 7, 2, 17.5, [409, 200, 4]);
-const JUNE = () => warrior('CHAR_JUNE', 2, 10, 2, 17.5, [4013, 215, 35]);
-function story40() { return genBattle(40, []); }
-function story1() { return genBattle(1, []); }
+const HAMMERHEAD = () => warrior('CHAR_HAMMERHEAD', 1, 13, 1, 20);
+const OUTCAST = () => warrior('CHAR_OUTCAST', 1, 14, 1, 20);
+const SPADE = () => warrior('CHAR_SPADE', 2, 1, 1, 20);
+const MAUL = () => warrior('CHAR_MAUL', 1, 14, 1, 20);
+const AVALANCHE = () => warrior('CHAR_AVALANCHE', 2, 3, 1, 20);
+const RASCAL = () => warrior('CHAR_RASCAL', 1, 15, 1, 20);
+const BOULDER = () => warrior('CHAR_BOULDER', 1, 14, 1, 20);
+const GRETA = () => warrior('CHAR_GRETA', 2, 1, 1, 20);
+const GIZMO = () => warrior('CHAR_GIZMO', 1, 7, 2, 17.5);
+const JUNE = () => warrior('CHAR_JUNE', 2, 10, 2, 17.5);
+function oneRound(w) { return genFight([genRound(w)], []); }
+function story40() {
+  return genBattle(40, [oneRound(HAMMERHEAD()), oneRound(OUTCAST()), oneRound(SPADE()),
+    oneRound(MAUL()), oneRound(AVALANCHE()), oneRound(BOULDER()), oneRound(RASCAL()), oneRound(GRETA())]);
+}
+function story1() {
+  return genBattle(1, [oneRound(GIZMO()), oneRound(JUNE())]);
+}
 function custom900x() {
-  // NOTE: fights/rounds/enemies intentionally left empty — the client builds
-  // those from its local battles.js static defs (same IDs). The server only
-  // carries state (counters/timestamps). Sending generated rounds triggers a
-  // fragile proto->ModelInfo merge that adds nothing here.
-  return [genBattle(9001, []), genBattle(9002, []), genBattle(9003, [])];
+  // NOTE: rounds carry gearless warriors on purpose (see warrior()). The client
+  // merge NREs on server-supplied equipment lists; enemies use default gear.
+  // Counts/shapes here only need to exist so GetRound() is non-null.
+  return [genBattle(9001, [oneRound(HAMMERHEAD())]),
+    genBattle(9002, [oneRound(OUTCAST())]), genBattle(9003, [oneRound(JUNE())])];
 }
 function battleData() {
   const all = [story40(), story1(), ...custom900x()];
