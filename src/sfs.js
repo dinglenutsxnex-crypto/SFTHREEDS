@@ -252,10 +252,13 @@ export function handleSfs(st, payload){
     } else if(cmd==='buy_booster'){
       // BuyBoosterRequest{shop_booster_model_id=1, currency=2}
       // -> state_change -> ResponseAndStateId{BuyBoosterResponse{booster=1, currency=2}}
-      let model = 0;
+      // NOTE: request carries the SHOP listing id; grant the real BoosterModels id.
+      const SHOP2BOOSTER = {1:3, 2:4, 3:5, 201:203, 202:204, 203:205};
+      let shopModel = 0;
       try {
-        for(const [f,w,v] of decodeProto(b)) if(f===1&&w===0) model=v;
+        for(const [f,w,v] of decodeProto(b)) if(f===1&&w===0) shopModel=v;
       } catch(e) {}
+      const model = SHOP2BOOSTER[shopModel] || 3;
       const booster = concat(vf(1, Date.now() % 1000000000), vf(2, model), mf(3, new Uint8Array(0)));
       const resp = concat(mf(1, booster));
       send(extResponse('buy_booster',0,'',concat(vf(1,st.sid),sf(2,resp)),reqId));
