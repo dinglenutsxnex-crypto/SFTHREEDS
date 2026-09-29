@@ -233,7 +233,7 @@ export function handleSfs(st, payload){
       const shortp=concat(vf(1,7),sf(2,'LocalHero'),sf(3,'LocalHero'),vf(4,1));
       const player=concat(mf(1,mf(1,shortp)),vf(3,50),playerCurrencies(),
         mf(5,new Uint8Array(0)),
-        mf(6,mf(2,tsProto(Date.now()))),mf(7,STARTER_GEAR),mf(8,new Uint8Array(0)),
+        mf(6,mf(2,tsProto(Date.now()))),mf(7,STARTER_GEAR),mf(8,battleData()),
         vf(9,100),vf(10,sid),mf(12,vf(2,424242)));
       send(extResponse('get_player',0,'',mf(1,player),reqId));
     } else if(cmd==='ping'){
