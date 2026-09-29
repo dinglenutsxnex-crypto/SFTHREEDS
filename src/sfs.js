@@ -159,23 +159,14 @@ const BOULDER = () => warrior('CHAR_BOULDER', 1, 14, 1, 20, [408, 218, 29]);
 const GRETA = () => warrior('CHAR_GRETA', 2, 1, 1, 20, [407, 200, 6]);
 const GIZMO = () => warrior('CHAR_GIZMO', 1, 7, 2, 17.5, [409, 200, 4]);
 const JUNE = () => warrior('CHAR_JUNE', 2, 10, 2, 17.5, [4013, 215, 35]);
-function story40() {
-  const F = (w, n = 1, exp = 15, coins = 80) => {
-    const rounds = []; for (let i = 0; i < n; i++) rounds.push(genRound(w()));
-    return genFight(rounds, [loot(exp, coins)]);
-  };
-  return genBattle(40, [F(HAMMERHEAD, 2), F(OUTCAST), F(SPADE), F(MAUL),
-    F(AVALANCHE), F(BOULDER), F(RASCAL), F(GRETA)]);
-}
-function story1() {
-  return genBattle(1, [
-    genFight([genRound(GIZMO())], [loot(10, 75)]),
-    genFight([genRound(JUNE())], [loot(10, 75)]),
-  ]);
-}
+function story40() { return genBattle(40, []); }
+function story1() { return genBattle(1, []); }
 function custom900x() {
-  const mk = (id, w) => genBattle(id, [genFight([genRound(w())], [loot(10, 50)])]);
-  return [mk(9001, HAMMERHEAD), mk(9002, OUTCAST), mk(9003, JUNE)];
+  // NOTE: fights/rounds/enemies intentionally left empty — the client builds
+  // those from its local battles.js static defs (same IDs). The server only
+  // carries state (counters/timestamps). Sending generated rounds triggers a
+  // fragile proto->ModelInfo merge that adds nothing here.
+  return [genBattle(9001, []), genBattle(9002, []), genBattle(9003, [])];
 }
 function battleData() {
   const all = [story40(), story1(), ...custom900x()];
