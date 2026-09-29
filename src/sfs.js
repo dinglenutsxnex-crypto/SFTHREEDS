@@ -249,6 +249,16 @@ export function handleSfs(st, payload){
       send(extResponse('refresh_battles',0,'',concat(vf(1,st.sid),sf(2,battleData())),reqId));
     } else if(cmd==='log'){
       send(extResponse('log',0,'',new Uint8Array(0),reqId));
+    } else if(cmd==='buy_booster'){
+      // BuyBoosterRequest{shop_booster_model_id=1, currency=2}
+      // -> state_change -> ResponseAndStateId{BuyBoosterResponse{booster=1, currency=2}}
+      let model = 0;
+      try {
+        for(const [f,w,v] of decodeProto(b)) if(f===1&&w===0) model=v;
+      } catch(e) {}
+      const booster = concat(vf(1, Date.now() % 1000000000), vf(2, model), mf(3, new Uint8Array(0)));
+      const resp = concat(mf(1, booster));
+      send(extResponse('buy_booster',0,'',concat(vf(1,st.sid),sf(2,resp)),reqId));
     } else if(cmd==='process_offline_batch'){
       const sid=trackIds(st,b);
       send(extResponse('process_offline_batch',0,'',concat(vf(1,sid),sf(2,new Uint8Array(0))),reqId));
