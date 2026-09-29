@@ -159,20 +159,20 @@ const BOULDER = () => warrior('CHAR_BOULDER', 1, 14, 1, 20, [408, 218, 29]);
 const GRETA = () => warrior('CHAR_GRETA', 2, 1, 1, 20, [407, 200, 6]);
 const GIZMO = () => warrior('CHAR_GIZMO', 1, 7, 2, 17.5, [409, 200, 4]);
 const JUNE = () => warrior('CHAR_JUNE', 2, 10, 2, 17.5, [4013, 215, 35]);
-function oneRound(w) { return genFight([genRound(w)], []); }
+function bestOf(w) { return genFight([genRound(w()), genRound(w())], []); }
 function story40() {
-  return genBattle(40, [oneRound(HAMMERHEAD()), oneRound(OUTCAST()), oneRound(SPADE()),
-    oneRound(MAUL()), oneRound(AVALANCHE()), oneRound(BOULDER()), oneRound(RASCAL()), oneRound(GRETA())]);
+  return genBattle(40, [bestOf(HAMMERHEAD()), bestOf(OUTCAST()), bestOf(SPADE()),
+    bestOf(MAUL()), bestOf(AVALANCHE()), bestOf(BOULDER()), bestOf(RASCAL()), bestOf(GRETA())]);
 }
 function story1() {
-  return genBattle(1, [oneRound(GIZMO()), oneRound(JUNE())]);
+  return genBattle(1, [bestOf(GIZMO()), bestOf(JUNE())]);
 }
 function custom900x() {
   // NOTE: rounds carry gearless warriors on purpose (see warrior()). The client
   // merge NREs on server-supplied equipment lists; enemies use default gear.
   // Counts/shapes here only need to exist so GetRound() is non-null.
-  return [genBattle(9001, [oneRound(HAMMERHEAD())]),
-    genBattle(9002, [oneRound(OUTCAST())]), genBattle(9003, [oneRound(JUNE())])];
+  return [genBattle(9001, [bestOf(HAMMERHEAD())]),
+    genBattle(9002, [bestOf(OUTCAST())]), genBattle(9003, [bestOf(JUNE())])];
 }
 function battleData() {
   const all = [story40(), story1(), ...custom900x()];
