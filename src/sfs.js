@@ -159,7 +159,7 @@ const BOULDER = () => warrior('CHAR_BOULDER', 1, 14, 1, 20, [408, 218, 29]);
 const GRETA = () => warrior('CHAR_GRETA', 2, 1, 1, 20, [407, 200, 6]);
 const GIZMO = () => warrior('CHAR_GIZMO', 1, 7, 2, 17.5, [409, 200, 4]);
 const JUNE = () => warrior('CHAR_JUNE', 2, 10, 2, 17.5, [4013, 215, 35]);
-function bestOf(w) { return genFight([genRound(w()), genRound(w())], []); }
+function bestOf(w) { return genFight([genRound(w), genRound(w)], []); }
 function story40() {
   return genBattle(40, [bestOf(HAMMERHEAD()), bestOf(OUTCAST()), bestOf(SPADE()),
     bestOf(MAUL()), bestOf(AVALANCHE()), bestOf(BOULDER()), bestOf(RASCAL()), bestOf(GRETA())]);
