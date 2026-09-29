@@ -130,10 +130,13 @@ const STARTER_GEAR=(()=> {
 // custom 900x battles match local battles.js lab_* entries (Bamboo/Gorge/Temple).
 function wItem(id) { return mf(1, vf(1, id)); }                    // WarriorItemId
 function warrior(alias, gender, appearance, ai, power) {
-  // NOTE: no equipment list on purpose. The client's proto->ModelInfo merge
-  // NREs on server-supplied gear, while the fight itself only needs rounds to
-  // exist — enemies fall back to default gear. Static gear lives in battles.js.
   return concat(sf(1, alias), vf(2, gender), vf(3, appearance), vf(4, ai), dff(5, power));
+}
+function warriorG(alias, gender, appearance, ai, power, gear) {
+  // EXPERIMENT: geared proto warrior (9001 only). If the merge survives this,
+  // gear rolls out to all; if it NREs we get a fresh stack to dissect.
+  return concat(sf(1, alias), vf(2, gender), vf(3, appearance), vf(4, ai), dff(5, power),
+    ...gear.map(g => mf(6, mf(1, vf(1, g)))));
 }
 function genRound(w) { return mf(2, w); }                          // GeneratedRound{warrior}
 function loot(exp, coins) {
@@ -173,7 +176,8 @@ function custom900x() {
   // NOTE: rounds carry gearless warriors on purpose (see warrior()). The client
   // merge NREs on server-supplied equipment lists; enemies use default gear.
   // Counts/shapes here only need to exist so GetRound() is non-null.
-  return [genBattle(9001, [oneRound(HAMMERHEAD())]),
+  const HHG = () => warriorG('CHAR_HAMMERHEAD', 1, 13, 1, 20, [412, 214, 22]);
+  return [genBattle(9001, [oneRound(HHG())]),
     genBattle(9002, [oneRound(OUTCAST())]), genBattle(9003, [oneRound(JUNE())])];
 }
 function battleData() {
