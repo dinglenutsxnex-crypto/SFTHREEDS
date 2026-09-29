@@ -170,7 +170,8 @@ function custom900x() {
 }
 function battleData() {
   const all = [story40(), story1(), ...custom900x()];
-  return concat(...all.map(g => mf(1, battleWrap(g, 1))));
+  // counter MUST be 0 for fresh battles: MergeWith marks counter>=count as completed+hidden.
+  return concat(...all.map(g => mf(1, battleWrap(g, 0))));
 }
 function playerCurrencies() {
   const c = (t, v) => mf(4, concat(vf(1, t), vf(2, v)));
