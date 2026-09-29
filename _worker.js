@@ -1,7 +1,7 @@
 import { createSession, handleSfs, decodeObj } from './src/sfs.js';
 
 // Bump on every deploy so we can tell exactly which build is live.
-const BUILD = 'bb9';
+const BUILD = 'bb10';
 
 // One Durable Object instance per BlueBox session id => sticky game state.
 export class SfsSession {
