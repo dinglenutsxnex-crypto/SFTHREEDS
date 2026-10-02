@@ -174,8 +174,26 @@ function custom900x() {
   return [genBattle(9001, [bestOf(HAMMERHEAD())]),
     genBattle(9002, [bestOf(OUTCAST())]), genBattle(9003, [bestOf(JUNE())])];
 }
+// SF2-style tournament ladder (mirrors client battles.js custom_Tournament_Cup).
+const SCOUT1 = () => warrior('CHAR_LEGION_SCOUT', 1, 15, 1, 18, [411, 201, 44]);
+const SCOUT2 = () => warrior('CHAR_LEGION_SCOUT', 1, 15, 1, 19, [411, 201, 44]);
+const GUARDSMAN = () => warrior('CHAR_GUARDSMAN', 1, 5, 1, 20, [416, 216, 52]);
+const GALEN = () => warrior('CHAR_Galen', 1, 8, 1, 22, [406, 202, 55]);
+const RANDI = () => warrior('CHAR_RANDI', 1, 11, 1, 23, [408, 218, 29]);
+const FORT_COMMANDER = () => warrior('CHAR_FORT_COMMANDER', 1, 5, 1, 23, [416, 216, 52]);
+const MYST_OPP = () => warrior('CHAR_MYSTERIOUS_OPPONENT', 1, 5, 1, 24, [408, 218, 29]);
+const SARGE = () => warrior('CHAR_SARGE', 1, 9, 1, 26, [416, 216, 52]);
+function tourney9004() {
+  return genBattle(9004, [bestOf(SCOUT1()), bestOf(SCOUT2()), bestOf(GUARDSMAN()),
+    bestOf(RASCAL()), bestOf(HAMMERHEAD()), bestOf(OUTCAST()), bestOf(SPADE()),
+    bestOf(BOULDER()), bestOf(AVALANCHE()), bestOf(MAUL()), bestOf(GRETA()),
+    bestOf(JUNE()), bestOf(GALEN()), bestOf(RANDI()), bestOf(MYST_OPP())]);
+}
+function boss9005() {
+  return genBattle(9005, [bestOf(GUARDSMAN()), bestOf(FORT_COMMANDER()), bestOf(SARGE())]);
+}
 function battleData() {
-  const all = [story40(), story1(), ...custom900x()];
+  const all = [story40(), story1(), ...custom900x(), tourney9004(), boss9005()];
   // counter MUST be 0 for fresh battles: MergeWith marks counter>=count as completed+hidden.
   return concat(...all.map(g => mf(1, battleWrap(g, 0))));
 }
